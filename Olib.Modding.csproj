@@ -1,5 +1,6 @@
-﻿<Project Sdk="Godot.NET.Sdk/4.6.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <PackageReference Include="GodotSharp" Version="4.6" />
     <PackageReference Include="Semver" Version="3.0.0" />
   </ItemGroup>
 
