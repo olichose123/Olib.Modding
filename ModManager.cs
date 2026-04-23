@@ -65,6 +65,7 @@ namespace Olib.Modding
                     }
                     else
                     {
+                        GD.Print($"Found mod in {dir}/{subdir}");
                         string jsonContent = file.GetAsText();
                         Mod? mod = (Mod?)JsonSerializer.Deserialize(jsonContent, typeof(Mod), jsonOptions);
                         if (mod == null)
@@ -174,7 +175,7 @@ namespace Olib.Modding
         /// <param name="dependencies">A list of dependencies required by the mod.</param>
         /// <param name="outputDirectory">The directory where the mod.json file will be saved.</param>
         /// <exception cref="ModException"></exception>
-        public void CreateMod(string name, SemVersion version, string author, string description, string website, List<Dependency> dependencies, string outputDirectory)
+        public void CreateMod(string name, SemVersion version, string author, string description, string website, List<Dependency> dependencies, string outputDirectory, JsonSerializerOptions? jsonOptions = null)
         {
             Mod newMod = new Mod
             {
@@ -191,7 +192,7 @@ namespace Olib.Modding
             {
                 throw new ModException($"Could not create output directory: {outputDirectory}. Error: {error}");
             }
-            string jsonContent = JsonSerializer.Serialize(newMod, new JsonSerializerOptions { WriteIndented = true });
+            string jsonContent = JsonSerializer.Serialize(newMod, jsonOptions);
             Godot.FileAccess file = Godot.FileAccess.Open($"{outputDirectory}/mod.json", Godot.FileAccess.ModeFlags.Write);
             if (file == null)
             {
@@ -225,6 +226,25 @@ namespace Olib.Modding
             MissingDependencies = missingDependencies;
             InactiveDependencies = inactiveDependencies;
             IncompatibleDependencies = incompatibleDependencies;
+        }
+
+        public override string ToString()
+        {
+            if (IsMissing)
+            {
+                return $"Mod '{Mod.Name}' v{Mod.Version} is missing.";
+            }
+            else
+            {
+                List<string> issues = new List<string>();
+                if (MissingDependencies.Count > 0)
+                    issues.Add($"Missing dependencies: {string.Join(", ", MissingDependencies.Select(d => $"{d.Name} {d.CompatibleVersions}"))}");
+                if (InactiveDependencies.Count > 0)
+                    issues.Add($"Inactive dependencies: {string.Join(", ", InactiveDependencies.Select(d => $"{d.Name} {d.CompatibleVersions}"))}");
+                if (IncompatibleDependencies.Count > 0)
+                    issues.Add($"Incompatible dependencies: {string.Join(", ", IncompatibleDependencies.Select(d => $"{d.Name} {d.CompatibleVersions}"))}");
+                return $"Mod '{Mod.Name}' v{Mod.Version} has issues: {string.Join("; ", issues)}";
+            }
         }
     }
 }

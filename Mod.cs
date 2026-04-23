@@ -38,7 +38,12 @@ namespace Olib.Modding
     /// </summary>
     public class ActiveMod
     {
-        public string Name { get; private set; } = string.Empty;
-        public SemVersion Version { get; private set; } = new SemVersion(0, 0, 0);
+        public string Name { get; set; } = string.Empty;
+        public SemVersion Version { get; set; } = new SemVersion(0, 0, 0);
+
+        public override string ToString()
+        {
+            return $"{Name} v{Version}";
+        }
     }
 }
